@@ -4,6 +4,7 @@ function App() {
     const [sites, setSites] = useState([]);
     const [url, setUrl] = useState('');
     const [name, setName] = useState('');
+    const [editId, setEditId] = useState(null);
 
     const API = 'http://localhost:8080/sites';
 
@@ -14,15 +15,29 @@ function App() {
     useEffect(() => { fetchSites(); }, []);
 
     const addSite = () => {
-        fetch(API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url, name }),
-        }).then(() => { fetchSites(); setUrl(''); setName(''); });
+        if (editId) {
+            fetch(API, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: editId, url, name }),
+            }).then(() => { fetchSites(); setUrl(''); setName(''); setEditId(null); });
+        } else {
+            fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, name }),
+            }).then(() => { fetchSites(); setUrl(''); setName(''); });
+        }
     };
 
     const deleteSite = (id) => {
         fetch(API + '?id=' + id, { method: 'DELETE' }).then(fetchSites);
+    };
+
+    const editSite = (site) => {
+        setEditId(site.id);
+        setUrl(site.url);
+        setName(site.name);
     };
 
     const formatDate = (d) => {
@@ -35,9 +50,10 @@ function App() {
             <h1>Uptime Monitor</h1>
 
             <div role="group">
-                <input placeholder="URL" value={url} onChange={e => setUrl(e.target.value)} />
+                <input placeholder="URL" value={url} onChange={e => setUrl(e.target.value)} disabled={!!editId} />
                 <input placeholder="Name" value={name} onChange={e => setName(e.target.value)} />
-                <button onClick={addSite}>Add</button>
+                <button onClick={addSite}>{editId ? 'Save' : 'Add'}</button>
+                {editId && <button className="outline secondary" onClick={() => { setEditId(null); setUrl(''); setName(''); }}>Cancel</button>}
             </div>
 
             <table>
@@ -53,6 +69,7 @@ function App() {
                         <td>{s.uptime != null ? s.uptime.toFixed(2) + '%' : '—'}</td>
                         <td>{formatDate(s.checked_at)}</td>
                         <td>{formatDate(s.created_at)}</td>
+                        <td><button className="outline" onClick={() => editSite(s)}>Edit</button></td>
                         <td><button className="outline secondary" onClick={() => deleteSite(s.id)}>Delete</button></td>
                     </tr>
                 ))}

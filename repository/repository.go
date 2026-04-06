@@ -20,8 +20,8 @@ func (r *Repo) Create(site *models.Site) error {
 }
 
 func (r *Repo) Update(site *models.Site) error {
-	_, err := r.db.Exec("UPDATE sites SET url = $1, name = $2 WHERE id = $3",
-	site.URL, site.Name, site.ID)
+	_, err := r.db.Exec("UPDATE sites SET name = $1 WHERE id = $2",
+	site.URL, site.ID)
 	return err
 }
 
