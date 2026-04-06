@@ -1,0 +1,36 @@
+name: CI
+
+  on: [push, pull_request]
+
+  jobs:
+    server-build:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-go@v5
+          with:
+            go-version: '1.21'
+        - run: go build ./cmd/server/
+
+    server-test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-go@v5
+          with:
+            go-version: '1.21'
+        - run: go test ./handlers/ -v
+
+    client-build:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+        - run: cd frontend && npm ci && npm run build
+
+    client-test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+        - run: cd frontend && npm ci && CI=true npm test
