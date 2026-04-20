@@ -14,14 +14,13 @@ func NewRepo(db *sql.DB) *Repo {
 }
 
 func (r *Repo) Create(site *models.Site) error {
-	return r.db.QueryRow(
-		"INSERT INTO sites (url, name) VALUES ($1, $2) RETURNING id",
+	return r.db.QueryRow("INSERT INTO sites (url, name) VALUES ($1, $2) RETURNING id",
 		site.URL, site.Name).Scan(&site.ID)
 }
 
 func (r *Repo) Update(site *models.Site) error {
 	_, err := r.db.Exec("UPDATE sites SET name = $1 WHERE id = $2",
-	site.URL, site.ID)
+		site.Name, site.ID)
 	return err
 }
 

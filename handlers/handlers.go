@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 	"uptime-monitor/models"
 	"uptime-monitor/repository"
 )
@@ -30,7 +31,8 @@ func (h *Handler) CreateSite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Get(site.URL)
+	client := http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get(site.URL)
 	status := err == nil && resp.StatusCode == 200
 	err = h.repo.UpdateStatus(site.ID, status)
 	if err != nil {
