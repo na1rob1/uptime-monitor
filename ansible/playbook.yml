@@ -1,0 +1,39 @@
+- name: Deploy uptime-monitor
+  hosts: uptime
+  become: true
+  
+  tasks:
+    - name: Install docker and compose
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+        state: present
+        update_cache: yes
+  
+    - name: Ensure docker is running and enabled
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+  
+    - name: Create app directory
+      file:
+        path: /opt/uptime
+        state: directory
+        mode: '0755'
+  
+    - name: Copy migrations
+      copy:
+        src: ../migrations/
+        dest: /opt/uptime/migrations/
+  
+    - name: Copy docker-compose.yml
+      copy:
+        src: docker-compose.yml
+        dest: /opt/uptime/docker-compose.yml
+  
+    - name: Pull images and start services
+      shell: docker-compose pull && docker-compose up -d
+      args:
+        chdir: /opt/uptime

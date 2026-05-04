@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: uptime
+      POSTGRES_PASSWORD: uptime
+      POSTGRES_DB: uptime
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - /opt/uptime/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uptime"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  server:
+    image: ghcr.io/na1rob1/uptime-monitor-server:latest
+    environment:
+      DATABASE_URL: postgres://uptime:uptime@db:5432/uptime?sslmode=disable
+      PORT: "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    image: ghcr.io/na1rob1/uptime-monitor-frontend:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  db_data:
