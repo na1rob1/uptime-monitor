@@ -6,7 +6,7 @@ function App() {
     const [name, setName] = useState('');
     const [editId, setEditId] = useState(null);
 
-    const API = 'http://localhost:8080/sites';
+    const API = '/api/sites';
 
     const fetchSites = () => {
         fetch(API).then(r => r.json()).then(data => setSites(data || []));
