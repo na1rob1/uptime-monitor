@@ -3,13 +3,22 @@
   become: true
   
   tasks:
-    - name: Install docker and compose
+    - name: Install docker.io
       apt:
-        name:
-          - docker.io
-          - docker-compose
+        name: docker.io
         state: present
         update_cache: yes
+
+    - name: Create cli plugins directory
+      file:
+        path: /usr/local/lib/docker/cli-plugins
+        state: directory
+
+    - name: Install docker compose v2 binary
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.29.0/docker-compose-linux-x86_64
+        dest: /usr/local/lib/docker/cli-plugins/docker-compose
+        mode: '0755'
   
     - name: Ensure docker is running and enabled
       systemd:
@@ -34,6 +43,6 @@
         dest: /opt/uptime/docker-compose.yml
   
     - name: Pull images and start services
-      shell: docker-compose pull && docker-compose up -d
+      shell: docker compose pull && docker compose up -d
       args:
         chdir: /opt/uptime
