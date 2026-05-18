@@ -34,6 +34,20 @@ func main() {
 	repo := repository.NewRepo(db)
 	h := handlers.NewHandler(repo)
 
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+	})
+
+	http.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+		if err := db.Ping(); err != nil {
+			http.Error(w, "db down", http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ready"))
+	})
+
 	http.HandleFunc("/sites", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
