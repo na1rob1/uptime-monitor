@@ -11,6 +11,8 @@ import (
 	_ "github.com/lib/pq"
 	"uptime-monitor/handlers"
 	"uptime-monitor/repository"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -69,11 +71,13 @@ func main() {
 		}
 	})
 
+	http.Handle("/metrics", promhttp.Handler())
+
 	go checker.Start(repo)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 	fmt.Println("server on :" + port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, handlers.MetricsMiddleware(http.DefaultServeMux)))
 }
