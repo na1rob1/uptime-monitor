@@ -3,6 +3,7 @@ module uptime-monitor
 go 1.23.4
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/lib/pq v1.12.3
 	github.com/prometheus/client_golang v1.23.2
 )

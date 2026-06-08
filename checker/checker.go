@@ -6,23 +6,25 @@ import (
 	"uptime-monitor/repository"
 )
 
-func Start(repo *repository.Repo) {
-	client := &http.Client{Timeout: 5 * time.Second}
-	ticker := time.NewTicker(5 * time.Second)
-	for range ticker.C {
-		sites, err := repo.Read()
+var client = &http.Client{Timeout: 5 * time.Second}
+
+func checkOnce(repo *repository.Repo) {
+	sites, err := repo.Read()
+	if err != nil {
+		return
+	}
+	for _, site := range sites {
+		resp, err := client.Get(site.URL)
 		if err != nil {
+			repo.UpdateStatus(site.ID, false)
 			continue
 		}
-		for _, site := range sites {
-			resp, err := client.Get(site.URL)
-			if err != nil {
-				repo.UpdateStatus(site.ID, false)
-				continue
-			}
-			status := resp.StatusCode == 200
-			resp.Body.Close()
-			repo.UpdateStatus(site.ID, status)
-		}
+		status := resp.StatusCode == 200
+		resp.Body.Close()
+		repo.UpdateStatus(site.ID, status)
 	}
+}
+
+func Start(repo *repository.Repo) {
+	for range time.NewTicker(5 * time.Second).C { checkOnce(repo) }
 }
