@@ -162,3 +162,44 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: -Dsonar.qualitygate.wait=true
+
+  notify-telegram:
+    runs-on: ubuntu-latest
+    needs: [ server-test, server-build, client-test, client-build, docker-server-push, docker-frontend-push, sonarcloud ]
+    if: always()
+    steps:
+      - name: Compute overall status
+        id: status
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
+          echo "label=FAILED" >> $GITHUB_OUTPUT
+          elif [[ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+          echo "label=CANCELLED" >> $GITHUB_OUTPUT
+          else
+          echo "label=SUCCESS" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Telegram notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: markdown
+          message: |
+            *CI Pipeline: ${{ steps.status.outputs.label }}*
+
+            *Repo:* `${{ github.repository }}`
+            *Branch:* `${{ github.ref_name }}`
+            *Commit:* `${{ github.event.head_commit.message }}`
+            *Author:* @${{ github.actor }}
+
+            *Jobs:*
+            - server-test: ${{ needs.server-test.result }}
+            - server-build: ${{ needs.server-build.result }}
+            - client-test: ${{ needs.client-test.result }}
+            - client-build: ${{ needs.client-build.result }}
+            - docker-server: ${{ needs.docker-server-push.result }}
+            - docker-frontend: ${{ needs.docker-frontend-push.result }}
+            - sonarcloud: ${{ needs.sonarcloud.result }}
+
+            ${{ github.event.head_commit.url }}
