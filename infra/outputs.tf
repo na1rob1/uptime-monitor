@@ -13,28 +13,28 @@ output "k8s_cluster_id" {
   description = "k8s cluster ID - kubeconfig скачать через panel/CLI"
 }
 
-locals {
-  postgres_public_host = [
-  for n in twc_database_cluster.main.networks : n.ips[0].ip
-  if n.type == "public"
-  ][0]
-}
-
-output "postgres_host" {
-  value       = local.postgres_public_host
-  description = "Postgres public host"
-}
-
-output "postgres_port" {
-  value       = twc_database_cluster.main.port
-  description = "Postgres port"
-}
-
-output "database_url" {
-  value       = "postgres://${twc_database_user.main.login}:${var.db_password}@${local.postgres_public_host}:${twc_database_cluster.main.port}/${twc_database_instance.main.name}?sslmode=require"
-  sensitive   = true
-  description = "DATABASE_URL для backend"
-}
+#locals {
+#  postgres_public_host = [
+#  for n in twc_database_cluster.main.networks : n.ips[0].ip
+#  if n.type == "public"
+#  ][0]
+#}
+#
+#output "postgres_host" {
+#  value       = local.postgres_public_host
+#  description = "Postgres public host"
+#}
+#
+#output "postgres_port" {
+#  value       = twc_database_cluster.main.port
+#  description = "Postgres port"
+#}
+#
+#output "database_url" {
+#  value       = "postgres://${twc_database_user.main.login}:${var.db_password}@${local.postgres_public_host}:${twc_database_cluster.main.port}/${twc_database_instance.main.name}?sslmode=require"
+#  sensitive   = true
+#  description = "DATABASE_URL для backend"
+#}
 
 output "kubeconfig" {
   value       = twc_k8s_cluster.uptime.kubeconfig

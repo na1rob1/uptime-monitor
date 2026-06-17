@@ -75,44 +75,44 @@ resource "twc_k8s_cluster" "uptime" {
 resource "twc_k8s_node_group" "workers" {
   cluster_id     = twc_k8s_cluster.uptime.id
   name           = "workers"
-  preset_id      = data.twc_k8s_preset.worker.id
+  preset_id      = 1681
   node_count     = 1
   is_autoscaling = true
   min_size       = 1
   max_size       = 3
 }
 
-data "twc_database_preset" "postgres" {
-  location = "ru-1"
-  type     = "postgres"
-  disk     = 8192
-
-  price_filter {
-    from = 100
-    to   = 500
-  }
-}
-
-resource "twc_database_cluster" "main" {
-  name           = "uptime-cluster"
-  type           = "postgres17"
-  preset_id      = data.twc_database_preset.postgres.id
-  is_external_ip = true
-}
-
-resource "twc_database_instance" "main" {
-  cluster_id = twc_database_cluster.main.id
-  name       = "uptime"
-}
-
-resource "twc_database_user" "main" {
-  cluster_id = twc_database_cluster.main.id
-  login      = "uptime"
-  password   = var.db_password
-
-  instance {
-    instance_id = twc_database_instance.main.id
-    privileges  = ["SELECT", "INSERT", "UPDATE", "DELETE", "CREATE"]
-  }
-}
+#data "twc_database_preset" "postgres" {
+#  location = "ru-1"
+#  type     = "postgres"
+#  disk     = 8192
+#
+#  price_filter {
+#    from = 100
+#    to   = 500
+#  }
+#}
+#
+#resource "twc_database_cluster" "main" {
+#  name           = "uptime-cluster"
+#  type           = "postgres17"
+#  preset_id      = data.twc_database_preset.postgres.id
+#  is_external_ip = true
+#}
+#
+#resource "twc_database_instance" "main" {
+#  cluster_id = twc_database_cluster.main.id
+#  name       = "uptime"
+#}
+#
+#resource "twc_database_user" "main" {
+#  cluster_id = twc_database_cluster.main.id
+#  login      = "uptime"
+#  password   = var.db_password
+#
+#  instance {
+#    instance_id = twc_database_instance.main.id
+#    privileges  = ["SELECT", "INSERT", "UPDATE", "DELETE", "CREATE"]
+#  }
+#}
 
