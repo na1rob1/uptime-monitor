@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: ghcr.io/na1rob1/uptime-monitor-server:latest
+          image: ghcr.io/na1rob1/uptime-monitor-server:eee0bbb8f0809fc6998d2681ffbc32a110c550f0
           imagePullPolicy: Always
           ports:
             - name: http
