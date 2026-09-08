@@ -54,13 +54,17 @@ provider "twc" {
 # LAB 3
 
 data "twc_k8s_preset" "master" {
-  cpu  = 2
-  type = "master"
+  cpu               = 2
+  type              = "master"
+  location          = "ru-3"
+  description_short = "K8S Promo"
 }
 
 data "twc_k8s_preset" "worker" {
-  cpu  = 2
-  type = "worker"
+  cpu               = 2
+  type              = "worker"
+  location          = "ru-3"
+  description_short = "K8S 2/2/40"
 }
 
 resource "twc_k8s_cluster" "uptime" {
@@ -75,7 +79,7 @@ resource "twc_k8s_cluster" "uptime" {
 resource "twc_k8s_node_group" "workers" {
   cluster_id     = twc_k8s_cluster.uptime.id
   name           = "workers"
-  preset_id      = 1681
+  preset_id      = data.twc_k8s_preset.worker.id
   node_count     = 1
   is_autoscaling = true
   min_size       = 1
