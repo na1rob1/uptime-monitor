@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/na1rob1/uptime-monitor-frontend:eee0bbb8f0809fc6998d2681ffbc32a110c550f0
+          image: ghcr.io/na1rob1/uptime-monitor-frontend:8942898c0d0f3d487b9bb11dde53181f98ec70c4
           imagePullPolicy: Always
           ports:
             - name: http
